@@ -7,5 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface InviteRepository extends JpaRepository<InviteToken, UUID> {
-    Optional<InviteToken> findByInviteToken(String token);
+    Optional<InviteToken> findByToken(String token);
+    Optional<InviteToken> findByEmail(String email);
+    boolean existsByEmailAndAcceptedFalse(String email);
 }

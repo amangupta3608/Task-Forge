@@ -17,13 +17,13 @@ import java.util.UUID;
 @Table(name = "Companies")
 public class Company{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String description;
 
     private LocalDateTime createdAt;

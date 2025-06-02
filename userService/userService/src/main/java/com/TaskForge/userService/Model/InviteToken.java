@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "invites")
+@Table(name = "invite_tokens")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,14 +31,18 @@ public class InviteToken {
     @Column(nullable = false)
     private RoleType role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
     @Column(nullable = false)
     private LocalDateTime expiryDate;
 
     @Column(nullable = false)
     private boolean accepted;
 
-    @Column(nullable = false)
-    private UUID companyId;
+//    @Column(nullable = false)
+//    private UUID companyId;
 
     @PrePersist
     protected void prePersist() {
@@ -46,10 +50,4 @@ public class InviteToken {
             this.expiryDate = LocalDateTime.now().plusDays(7);
         }
     }
-
-
-    @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
-    private Company company;
-
 }
