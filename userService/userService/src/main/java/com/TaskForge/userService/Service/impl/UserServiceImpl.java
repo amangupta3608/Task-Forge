@@ -2,6 +2,7 @@ package com.TaskForge.userService.Service.impl;
 
 import com.TaskForge.userService.DTO.LoginRequestDTO;
 import com.TaskForge.userService.DTO.UserRegistrationDTO;
+import com.TaskForge.userService.DTO.UserResponseDTO;
 import com.TaskForge.userService.Exception.ResourceNotFoundException;
 import com.TaskForge.userService.Model.Company;
 import com.TaskForge.userService.Model.InviteToken;
@@ -14,9 +15,9 @@ import com.TaskForge.userService.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,12 +30,21 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public User registerUser(UserRegistrationDTO dto, UUID inviteTokenId) {
-        InviteToken invite = inviteRepository.findById(inviteTokenId)
+    @Transactional
+    public UserResponseDTO registerUser(UserRegistrationDTO dto) {
+        InviteToken invite = inviteRepository.findById(dto.getInviteTokenId())
                 .orElseThrow(() -> new ResourceNotFoundException("Invite not found"));
 
         if (invite.isAccepted()) {
             throw new IllegalStateException("Invite already accepted");
+        }
+
+        if(invite.getExpiryDate() != null && invite.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Invite token expired");
+        }
+
+        if(userRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalStateException("Email already registered");
         }
 
         Company company = invite.getCompany();
@@ -58,7 +68,14 @@ public class UserServiceImpl implements UserService {
         invite.setAccepted(true);
         inviteRepository.save(invite);
 
-        return savedUser;
+        return new UserResponseDTO(
+            savedUser.getId(),
+            savedUser.getEmail(),
+            savedUser.getFirstName(),
+            savedUser.getLastName(),
+            savedUser.getRole(),
+            company.getName()
+        );
     }
 
     @Override

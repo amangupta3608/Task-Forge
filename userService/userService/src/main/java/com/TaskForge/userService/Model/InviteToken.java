@@ -22,7 +22,7 @@ public class InviteToken {
     private UUID id;
 
     @Column(unique = true, nullable = false)
-    private String token;
+    private UUID token;
 
     @Column(nullable = false)
     private String email;
@@ -37,6 +37,9 @@ public class InviteToken {
 
     @Column(nullable = false)
     private LocalDateTime expiryDate;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private boolean accepted;

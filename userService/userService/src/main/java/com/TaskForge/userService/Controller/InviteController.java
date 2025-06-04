@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
-@RequestMapping("/invite")
+@RequestMapping("/api/invite")
 @RequiredArgsConstructor
 public class InviteController {
     private final InviteService inviteService;
@@ -15,13 +17,13 @@ public class InviteController {
     @PostMapping
     public ResponseEntity<String> inviteUser(@RequestParam String email,
                                             @RequestParam RoleType role,
-                                            @RequestParam String companyId){
+                                            @RequestParam UUID companyId){
         inviteService.sendInvite(email, role, companyId);
         return ResponseEntity.ok("InviteToken sent to " + email);
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<String> validateInvite(@RequestParam String token){
+    public ResponseEntity<String> validateInvite(@RequestParam UUID token){
         boolean isValid = inviteService.validateToken(token);
         return ResponseEntity.ok(isValid ? "Token is valid" : "Token is invalid");
     }
